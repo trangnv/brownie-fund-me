@@ -21,6 +21,8 @@ contract FundMe {
     // address of the owner of the contract
     address public owner;
 
+    AggregatorV3Interface public priceFeed;
+
     // constructor, declare the owner as one who deploys the contract
     // also declare the priceFeed contract
     constructor (address _priceFeed) public {
@@ -48,12 +50,22 @@ contract FundMe {
 
     // function to get ETH price
     function getPrice() public view returns (uint256) {
-
+        (,int256 answer,,,) = priceFeed.latestRoundData();
+        return uint256(answer * 10000000000);
     }
 
     // function to get conversion rate from ETH to USD
     function getConversionRate(uint256 ethAmount) public view returns (uint256) {
+        uint256 ethPrice = getPrice();
+        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
+        return ethAmountInUsd;
+    }
 
+    function getEntranceFee() public view returns (uint256) {
+        uint256 minimumUSD = 50 * 1e18;
+        uint256 price = getPrice();
+        uint256 precision = 1 * 1e18;
+        return ((minimumUSD * precision) / price) + 1; // to fix rounding error
     }
 
     // require msg.sender to be owner
@@ -64,7 +76,15 @@ contract FundMe {
 
     // withdraw function, can only called by owner, withdraw all ETH from the contract
     function withdraw() public payable onlyOwner {
+        // transfer all eth to msg.sender
+        msg.sender.transfer(address(this).balance);
 
+        // update records
+        for (uint256 i; i < funders.length; i++) {
+            address funder = funders[i];
+            addressToAmountFunded[funder] = 0;
+        }
+        funders = new address[](0);
     }
 
 }
