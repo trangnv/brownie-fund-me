@@ -7,7 +7,4 @@
 3. function modifier
 - https://medium.com/coinmonks/solidity-tutorial-all-about-modifiers-a86cf81c14cb
 
-4. let try forked network, no mocking
-
-
-
+4. default network is rinkeby-fork, no mocking was used

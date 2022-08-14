@@ -1,19 +1,11 @@
 from brownie import FundMe, network, config
-from scripts.helpful_scripts import (
-    get_account,
-    # deploy_mocks,
-    # LOCAL_BLOCKCHAIN_ENVIRONMENTS,
-    FORKED_LOCAL_ENVIRONMENTS,
-)
+from scripts.helpful_scripts import get_account
 
 
 def deploy_fund_me():
     account = get_account()
-    # if network.show_active() in FORKED_LOCAL_ENVIRONMENTS:
+    # default network is rinkeby fork, so there is alway priceFeed contract, no need mocking
     price_feed_address = config["networks"][network.show_active()]["eth_usd_price_feed"]
-    # else:
-    #     deploy_mocks()
-    #     price_feed_address = MockV3Aggregator[-1].address
 
     fund_me = FundMe.deploy(
         price_feed_address,
